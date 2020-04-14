@@ -1,16 +1,9 @@
-# PSA-Koblenz-Python-Training
-Python-Flask training sessions for the students of PSA (Pakistan Students Association) Koblenz. 
-
-
-## A Brief Introduction
-
-A full stack application using python flask and and a suitable database with it. (MongoDB/SQL).
-Python-Flask is a micro web framework written in Python which is used to develop small and large scale web applications. It is easy to use and its also scalable.
-
+# Playing-With-Python-Flask
+Playing with pyton flask micro framework for web development. initially I followed a tutorial and understood t he basics. Now making a simple web application similar to the one in the tutorial but without the use of too many extensions. Thus getting to know how things work under the hood.
 
 # Pre-requisites
 
-## Python, Python-Eve and Python-Flask
+## Python and Python-Flask
 
 One must have Python installed in his local system for working on this Full stack application easily. Other than Python one must also have to install Python-Eve, Python-Flask and its dependencies. To install flask, simply use
 ```
