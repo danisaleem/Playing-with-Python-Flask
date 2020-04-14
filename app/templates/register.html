@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content  %}
+    <div class="container">
+        <form class="form-horizontal" role="form" method="POST" action="/register" id="myform">
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <h2>Register New User</h2>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 field-label-responsive">
+                    <label for="name">Name</label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-user"></i></div>
+                            <input type="text" name="name" class="form-control" id="name"
+                                   placeholder="John Doe" required autofocus>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-control-feedback">
+                            <span class="text-danger align-middle">
+                                <!-- Put name validation error messages here -->
+                            </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 field-label-responsive">
+                    <label for="email">E-Mail Address</label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-at"></i></div>
+                            <input type="text" name="email" class="form-control" id="email"
+                            pattern="^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"                            
+                            placeholder="email@example.com" required autofocus>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-md-3">
+                    <div class="form-control-feedback">
+                            <span class="text-danger align-middle">
+                                <i class="fa fa-close"> Invalid Email</i>
+                            </span>
+                    </div>
+                </div> -->
+            </div>
+            <div class="row">
+                <div class="col-md-3 field-label-responsive">
+                    <label for="password">Password</label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group has-danger">
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon" style="width: 2.6rem"><i class="fa fa-key"></i></div>
+                            <input type="password" name="password" class="form-control" id="password"
+                                onkeyup='check();' placeholder="Password" required>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="row">
+                <div class="col-md-3 field-label-responsive">
+                    <label for="password">Confirm Password</label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="input-group mb-2 mr-sm-2 mb-sm-0">
+                            <div class="input-group-addon" style="width: 2.6rem">
+                                <i class="fa fa-repeat"></i>
+                            </div>
+                            <input type="password" name="password-confirmation" class="form-control"
+                                   id="password-confirm" onkeyup='check();' placeholder="Password" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-control-feedback">
+                            <span id='password_message' class="text-danger align-middle">                                
+                            </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <button type="button" id="btnsubmit" class="btn btn-success"><i class="fa fa-user-plus"></i> Register</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+<script>
+
+window.onload = function(){
+    document.getElementById('btnsubmit').onclick = function(e){ 
+        if ($("form")[0].checkValidity())
+            {
+                var params = {
+                _name : $('#name').val(),
+                _email : $('#email').val(),
+                _password_hash : $('#password').val()
+                };
+                
+                var array = JSON.stringify(params);
+
+                $.ajax({    
+                    data : array,
+                    type : 'POST',
+                    url : "/register",
+                    contentType: 'application/json',
+                    success: success
+                    })
+
+                function success(result) {
+                        alert('real succes');
+                    }
+                event.preventDefault();
+            }
+        else
+            //   important
+            $("form")[0].reportValidity()        
+    }
+}
+
+function check() {
+    // conf_password = document.getElementById("password-confirm");
+    conf_password = $("#password-confirm")[0];
+
+    if ($('#password').val() == $('#password-confirm').val()) {
+        $("#password_message").css("visibility", "hidden");
+        // $('#password-confirm').setCustomValidity(""); // doesnt work like this
+        conf_password.setCustomValidity("");
+        // document.getElementById('password_message').style.color = 'green';
+        // document.getElementById('password_message').innerHTML = 'matching';
+    } else {
+        $("#password_message").css("visibility", "visible");
+        $("#password_message").css("color", "red");
+        $('#password_message').html("Invalid")
+        // $('#password-confirm').setCustomValidity("Passwords Don't Match"); // doesnt work like this
+        conf_password.setCustomValidity("Passwords Don't Match");
+    }
+}
+    </script>
+{% endblock %} 
