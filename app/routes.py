@@ -1,7 +1,19 @@
 from app import app
-from flask import render_template, request, jsonify, flash, redirect, url_for
+from flask import render_template, request, jsonify, flash, redirect, url_for, session
 import sqlite3, json, sys
 from app.models import User, database #, Post
+
+@app.before_request
+def before_request_func():
+    rule = request.url_rule
+    # if 'login' in rule.rule:
+    # # request by '/antitop'
+
+    if not 'login' in rule.rule: # skip the next check if current route is login route 
+        if 'username' not in session:
+            return redirect(url_for('login'))
+            # logout()
+    return
 
 @app.route('/')
 @app.route('/index')
@@ -24,7 +36,6 @@ def index():
     return render_template('index.html', title='Home', user=user, posts=posts)
 
 @app.route('/login', methods=['GET', 'POST'])
-@app.route('/log-in', methods=['GET', 'POST'])
 def login():    
     if request.method == 'POST':
         data = request.get_json()
@@ -35,7 +46,7 @@ def login():
         user = User.get_user(username,password_hash)
 
         if user is None:
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'alert alert-danger') #  flash with category
             return jsonify(dict(redirect=url_for('login')))
         user.login_user() #, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -43,6 +54,12 @@ def login():
             next_page = url_for('index')
         return jsonify(dict(redirect=next_page))
     return render_template('login.html', title='Sign In')
+
+@app.route('/logout')
+def logout():
+    if 'username' in session:
+        session.pop('username')
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET','POST'])
 def register():
