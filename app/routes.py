@@ -9,10 +9,18 @@ def before_request_func():
     # if 'login' in rule.rule:
     # # request by '/antitop'
 
-    if not 'login' in rule.rule: # skip the next check if current route is login route 
-        if 'username' not in session:
-            return redirect(url_for('login'))
-            # logout()
+    urls_to_skip=['login','register']
+
+    # skip user logged in check if route is login or register
+    if any(url in rule.rule for url in urls_to_skip): 
+        pass
+    elif 'username' not in session: # check if user is logged in
+        return redirect(url_for('login'))
+
+    # if not 'login' in rule.rule: # skip the next check if current route is login route 
+    #     if 'username' not in session:
+    #         return redirect(url_for('login'))
+    #         # logout()
     return
 
 @app.route('/')
@@ -70,7 +78,12 @@ def register():
             data = request.get_json()
 
             name = data['_name']
-            email = data['_email'] 
+            email = data['_email']                     
+
+            if (User.user_exists(name,email)):
+                flash('username or email already exists', 'alert alert-danger') #  flash with category
+                return jsonify(dict(redirect=url_for('register')))        
+                        
             password_hash = User.hash_password(data['_password_hash']) # named it on purpose
             
             #INSERT with style:
@@ -82,12 +95,16 @@ def register():
             db.commit()
 
             ## TO DO i.e. save username in session then redirect to index page
-            return json.dumps(True)
-        except db.Error as e:            
-            db.rollback()
-            return(str(e))
+            flash('Registration Successful... Please login', 'alert alert-success') #  flash with category
+            return jsonify(dict(redirect=url_for('login')))
+        # except db.Error as e:
+        #     db.rollback()
+        #     flash('Error' + str(e) , 'alert alert-danger') #  flash with category
+        #     return jsonify(dict(redirect=url_for('register')))
         except Exception as e:
-            return(str(e))
+            db.rollback()
+            flash('Error' + str(e) , 'alert alert-danger') #  flash with category
+            return jsonify(dict(redirect=url_for('register')))
         finally:
             if db:
                 database.close_db_connection(db)

@@ -92,7 +92,7 @@
             <div class="row">
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
-                    <button type="button" id="btnsubmit" class="btn btn-success"><i class="fa fa-user-plus"></i> Register</button>
+                    <button type="submit" id="btnsubmit" class="btn btn-success"><i class="fa fa-user-plus"></i> Register</button>
                 </div>
             </div>
         </form>
@@ -120,8 +120,17 @@ window.onload = function(){
                     success: success
                     })
 
-                function success(response) {
-                        alert(response);
+                    function success(response) 
+                    {    
+                        if (response.redirect)
+                        {
+                            // data.redirect contains the string URL to redirect to
+                            window.location.href = response.redirect;
+                        } 
+                        else 
+                        {
+                            alert(response);
+                        }
                     }
                 event.preventDefault();
             }

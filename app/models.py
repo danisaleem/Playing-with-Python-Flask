@@ -18,6 +18,7 @@ class User():
     # def set_password(self, password):
     #     self.password_hash = hash_password(password)
     
+    @staticmethod
     def get_user(username, password):
         db=database.make_db_connection()
         cur=db.cursor()
@@ -31,9 +32,23 @@ class User():
             return None
         database.close_db_connection(db)
 
+    @staticmethod
+    def user_exists(username, email):
+        db=database.make_db_connection()
+        cur=db.cursor()
+
+        cur.execute('SELECT * From Users WHERE username=? or email=?', (username,email))
+        existing_users=cur.fetchall()
+
+        database.close_db_connection(db)        
+
+        if not existing_users:              
+            return False # no user exists with that username / email
+        else:            
+            return True # user exists
+
     def login_user(self):
         session['username'] = self.username
-
 
     def check_password(self, password):
         return verify_password(self.password_hash, password)
@@ -96,16 +111,14 @@ class User():
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
 
         # # To Print on console
-        print('This is error ' +pwdhash)
-        print('This is error ' +stored_password)
-        sys.stdout.flush()
-
+        # print('This is error ' +pwdhash)
+        # print('This is error ' +stored_password)
+        # sys.stdout.flush()
         return pwdhash == stored_password
 
 # @login.user_loader
 # def load_user(id):
 #     return User.query.get(int(id))
-
 
 # class Post(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
