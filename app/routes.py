@@ -2,12 +2,11 @@ from app import app
 from flask import render_template, request, jsonify, flash, redirect, url_for, session
 import sqlite3, json, sys
 from app.models import User, database #, Post
+from datetime import datetime
 
 @app.before_request
 def before_request_func():
-    rule = request.url_rule
-    # if 'login' in rule.rule:
-    # # request by '/antitop'
+    rule = request.url_rule # Get current route
 
     urls_to_skip=['login','register']
 
@@ -16,11 +15,9 @@ def before_request_func():
         pass
     elif 'username' not in session: # check if user is logged in
         return redirect(url_for('login'))
-
-    # if not 'login' in rule.rule: # skip the next check if current route is login route 
-    #     if 'username' not in session:
-    #         return redirect(url_for('login'))
-    #         # logout()
+    
+    if 'username' in session:
+        User.update_last_seen(session['username'],str(datetime.utcnow()))
     return
 
 @app.route('/')

@@ -53,6 +53,13 @@ class User():
     def check_password(self, password):
         return verify_password(self.password_hash, password)
 
+    def update_last_seen(username,last_seen):
+        db=database.make_db_connection()
+        cur=db.cursor()
+        cur.execute("Update Users Set last_seen=? Where username=?", (last_seen, username))
+        db.commit()
+        database.close_db_connection(db)
+
 #     def avatar(self, size):
 #         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
 #         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
