@@ -1,11 +1,11 @@
-# from app import app
 from datetime import datetime
 from flask import session #render_template, request, jsonify
 import sqlite3, json, sys
 import hashlib, binascii, os
 
 class User():
-    def __init__(self, username="", email="", password_hash="", about_me="", last_seen=datetime(1, 1, 1)):
+    def __init__(self, id=0 , username="", email="", password_hash="", about_me="", last_seen=datetime(1, 1, 1)):
+        self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
@@ -25,8 +25,8 @@ class User():
         cur.execute('SELECT * From Users WHERE username=?', (username,))
         row=cur.fetchone()
 
-        if ((row is not None) and User.verify_password(row[2], password)):
-            user=User(row[0],row[1],row[2],row[3],row[4])
+        if ((row is not None) and User.verify_password(row['password_hash'], password)):
+            user=User(row['id'], row['username'],row['email'],'',row['about_me'],'')
             return user
         else:
             return None
@@ -48,15 +48,16 @@ class User():
             return True # user exists
 
     def login_user(self):
-        session['username'] = self.username
+        # session['username'] = self.username
+        session['current_user'] = self.__dict__ # storing user object as dictionary
 
     def check_password(self, password):
         return verify_password(self.password_hash, password)
 
-    def update_last_seen(username,last_seen):
+    def update_last_seen(user_id,last_seen):
         db=database.make_db_connection()
         cur=db.cursor()
-        cur.execute("Update Users Set last_seen=? Where username=?", (last_seen, username))
+        cur.execute("Update Users Set last_seen=? Where id=?", (last_seen, user_id))
         db.commit()
         database.close_db_connection(db)
 
@@ -116,11 +117,6 @@ class User():
                                     salt.encode('ascii'), 
                                     100000)
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
-
-        # # To Print on console
-        # print('This is error ' +pwdhash)
-        # print('This is error ' +stored_password)
-        # sys.stdout.flush()
         return pwdhash == stored_password
 
 # @login.user_loader
@@ -139,6 +135,7 @@ class User():
 class database():
     def make_db_connection():
         db = sqlite3.connect("Flask_Sqlite3_Database.db")
+        db.row_factory = sqlite3.Row
         return db
 
     def close_db_connection(db):

@@ -13,42 +13,29 @@ def before_request_func():
     # skip user logged in check if route is login or register
     if any(url in rule.rule for url in urls_to_skip): 
         pass
-    elif 'username' not in session: # check if user is logged in
+    elif 'current_user' not in session: # check if user is logged in
         return redirect(url_for('login'))
     
-    if 'username' in session:
-        User.update_last_seen(session['username'],str(datetime.utcnow()))
+    if 'current_user' in session:
+        user_id=session['current_user'].get('id')
+        User.update_last_seen(user_id,str(datetime.utcnow()))
     return
 
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'username': session['username']}
+    user = {'username': session['current_user'].get('username')}
     posts=[]
-    # posts = [
-    #     {
-    #         'author': {'username': 'Saad'},
-    #         'body': '''Hello guys!! Today's video is goin to be awesom !'''
-    #     },
-    #     {
-    #         'author': {'username': 'Nabil'},
-    #         'body': 'ok guys lets start todays tutorial'
-    #     },
-    #     {
-    #         'author': {'username': 'Gates'},
-    #         'body': 'Windows is the best'
-    #     }
-    # ]
-
+    
     db=database.make_db_connection()
     cur=db.cursor()
-    cur.execute('SELECT * From Posts') # \
-        #Join Users b on a.username = b.username \
-        #WHERE username=?', (username,))
+    cur.execute('SELECT a.*,b.username \
+        From Posts a Join Users b on a.author_id = b.id' 
+            )
     res=cur.fetchall()
 
     for r in res:
-        posts.append({'username': r[3],'body': r[1]})
+        posts.append({'username': r['username'],'body': r['body']})
     database.close_db_connection(db)
 
     return render_template('index.html', title='Home', user=user, posts=posts)
@@ -75,8 +62,8 @@ def login():
 
 @app.route('/logout')
 def logout():
-    if 'username' in session:
-        session.pop('username')
+    if 'current_user' in session:
+        session.pop('current_user')
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET','POST'])
