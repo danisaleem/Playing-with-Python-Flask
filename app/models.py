@@ -25,8 +25,8 @@ class User():
         cur.execute('SELECT * From Users WHERE username=?', (username,))
         row=cur.fetchone()
 
-        if ((row is not None) and User.verify_password(row[3], password)):
-            user=User(row[1],row[2],row[3],row[4],row[5])
+        if ((row is not None) and User.verify_password(row[2], password)):
+            user=User(row[0],row[1],row[2],row[3],row[4])
             return user
         else:
             return None

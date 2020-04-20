@@ -23,21 +23,34 @@ def before_request_func():
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'username': 'Daniyal'}
-    posts = [
-        {
-            'author': {'username': 'Saad'},
-            'body': '''Hello guys!! Today's video is goin to be awesom !'''
-        },
-        {
-            'author': {'username': 'Nabil'},
-            'body': 'ok guys lets start todays tutorial'
-        },
-        {
-            'author': {'username': 'Gates'},
-            'body': 'Windows is the best'
-        }
-    ]
+    user = {'username': session['username']}
+    posts=[]
+    # posts = [
+    #     {
+    #         'author': {'username': 'Saad'},
+    #         'body': '''Hello guys!! Today's video is goin to be awesom !'''
+    #     },
+    #     {
+    #         'author': {'username': 'Nabil'},
+    #         'body': 'ok guys lets start todays tutorial'
+    #     },
+    #     {
+    #         'author': {'username': 'Gates'},
+    #         'body': 'Windows is the best'
+    #     }
+    # ]
+
+    db=database.make_db_connection()
+    cur=db.cursor()
+    cur.execute('SELECT * From Posts') # \
+        #Join Users b on a.username = b.username \
+        #WHERE username=?', (username,))
+    res=cur.fetchall()
+
+    for r in res:
+        posts.append({'username': r[3],'body': r[1]})
+    database.close_db_connection(db)
+
     return render_template('index.html', title='Home', user=user, posts=posts)
 
 @app.route('/login', methods=['GET', 'POST'])

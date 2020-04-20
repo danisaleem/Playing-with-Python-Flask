@@ -8,12 +8,11 @@ CREATE TABLE Users (
 	PRIMARY KEY("username")
 );
 
-CREATE TABLE post ( 
-    id INTEGER NOT NULL UNIQUE, 
-    body TEXT, 
-    timestamp Text, 
-    user_id INTEGER, 
-    PRIMARY KEY (id), 
-    FOREIGN KEY(user_id) 
-    REFERENCES user (id) 
+CREATE TABLE "Posts" ( 
+    "id" INTEGER NOT NULL UNIQUE, 
+    "body" TEXT, 
+    "timestamp" Text, 
+    "username" TEXT, 
+    PRIMARY KEY("id"), 
+    FOREIGN KEY("username") REFERENCES "Users"("username") 
     )
