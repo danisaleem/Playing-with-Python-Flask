@@ -11,7 +11,8 @@ def before_request_func():
     urls_to_skip=['login','register']
 
     # skip user logged in check if route is login or register
-    if any(url in rule.rule for url in urls_to_skip): 
+    # if (url in rule.rule for url in urls_to_skip):
+    if (url == rule.rule for url in urls_to_skip):
         pass
     elif 'current_user' not in session: # check if user is logged in
         return redirect(url_for('login'))
@@ -41,7 +42,8 @@ def index():
     return render_template('index.html', title='Home', user=user, posts=posts)
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():    
+def login():
+       
     if request.method == 'POST':
         data = request.get_json()
 
@@ -57,7 +59,7 @@ def login():
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
-        return jsonify(dict(redirect=next_page))
+        return jsonify(dict(redirect=next_page)) 
     return render_template('login.html', title='Sign In')
 
 @app.route('/logout')
