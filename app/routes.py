@@ -8,16 +8,16 @@ from datetime import datetime
 def before_request_func():
     rule = request.url_rule # Get current route
 
-    urls_to_skip=['login','register']
+    urls_to_skip=['/login','/register']
+    current_user=session.get('current_user')
 
-    # skip user logged in check if route is login or register
-    # if (url in rule.rule for url in urls_to_skip):
-    if (url == rule.rule for url in urls_to_skip):
-        pass
-    elif 'current_user' not in session: # check if user is logged in
+    if (rule.rule in urls_to_skip):
+        pass # skip user logged in check if route is login or register
+    elif current_user is None: # if user is not logged in
         return redirect(url_for('login'))
-    
-    if 'current_user' in session:
+
+    # if user is logged in then update last seen
+    if current_user is not None:
         user_id=session['current_user'].get('id')
         User.update_last_seen(user_id,str(datetime.utcnow()))
     return
@@ -28,8 +28,6 @@ def index():
     if request.method == 'POST':
         db=database.make_db_connection()
         cur=db.cursor()
-        # data = request.get_json()
-        # body = request.form['post']
         body = request.form.get('post')
         user_id=session['current_user'].get('id')
 
@@ -59,13 +57,11 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-       
+    logout();    #logout if loggedin user visits login route manually   
     if request.method == 'POST':
         data = request.get_json()
-
         username = data['_username']
         password_hash = data['_password_hash'] # named it on purpose
-        
         user = User.get_user(username,password_hash)
 
         if user is None:
@@ -86,6 +82,7 @@ def logout():
 
 @app.route('/register', methods=['GET','POST'])
 def register():
+    logout();    #logout if loggedin user visits register route manually
     if request.method == 'POST':
         db=database.make_db_connection()
         cur=db.cursor()
