@@ -1,9 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
     <h1>Hi, {{ user.username }}!</h1>
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    
+    <form class="form-horizontal" method="POST" action="/index" id="myform">
+        <div class="row">
+            <div class="col-md-6">
+                    <div>
+                        <textarea name="post" class="form-control" rows="3" placeholder="what's on your mind ?" required></textarea>
+                    </div>
+                    <br>
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+                    </div>        
+            </div>
+        </div>
+    </form>
+    <hr/>
+    <div class="row">
+        <div class="col-md-12">
+            {% for post in posts %}
+            {% include '_post.html' %}
+            {% endfor %}
+        </div>
+    </div>  
+</div>    
 {% endblock %}
